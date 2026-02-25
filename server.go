@@ -13,12 +13,24 @@ func getHealth(w http.ResponseWriter, r *http.Request) {
 }
 
 func fileHandler(w http.ResponseWriter, r *http.Request) {
-    data, _ := os.ReadFile("./version.txt")
-    hostname, _ := os.Hostname()
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
-    w.Header().Set("Content-Type", "text/plain")
-    fmt.Fprintf(w, "Version: %s\nHostname: %s\nTime: %s\n",
+	filePath := "./version.txt"
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprintf(w, "Version: %s\nHostname: %s\nTime: %s\n",
         string(data), hostname, time.Now().Format(time.RFC3339))
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
 }
 
 func main() {
