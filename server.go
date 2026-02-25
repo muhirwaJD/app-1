@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 )
 
 func getHealth(w http.ResponseWriter, r *http.Request) {
@@ -18,19 +20,17 @@ func fileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	filePath := "./version.txt"
-
-	data, err := os.ReadFile(filePath)
+	data, err := os.ReadFile("./version.txt")
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error reading file: %v", err), http.StatusInternalServerError)
 		return
 	}
 
+	hostname, _ := os.Hostname()
+
 	w.Header().Set("Content-Type", "text/plain")
 	fmt.Fprintf(w, "Version: %s\nHostname: %s\nTime: %s\n",
-        string(data), hostname, time.Now().Format(time.RFC3339))
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
+		strings.TrimSpace(string(data)), hostname, time.Now().Format(time.RFC3339))
 }
 
 func main() {
