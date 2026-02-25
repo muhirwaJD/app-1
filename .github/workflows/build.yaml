@@ -47,5 +47,6 @@ jobs:
         ECR_REPOSITORY: ${{ github.repository }}
         IMAGE_TAG: ${{ steps.release.outputs.new-tag }}
       run: |
+        ECR_REPOSITORY=$(echo "$ECR_REPOSITORY" | tr '[:upper:]' '[:lower:]')
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
